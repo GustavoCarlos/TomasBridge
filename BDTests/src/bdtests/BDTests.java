@@ -6,7 +6,10 @@
 package bdtests;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -21,10 +24,25 @@ public class BDTests {
     public static void main(String[] args) throws SQLException{
         // TODO code application logic here
         Connection con = DriverManager.getConnection(
-                "jdbc:mysql://localhost",
+                "jdbc:mysql://localhost/tomas",
                 "root", "tomasunifesp.3309");
         
         System.out.println("Connected!!!");
+        
+        /*DatabaseMetaData md = con.getMetaData();
+        ResultSet rs = md.getTables(null, null, "%", null);
+        
+        while(rs.next()){
+            System.out.println(rs.getString(3));
+        }*/
+        PreparedStatement stmt = con.prepareStatement("select * from tomadas");
+        
+        ResultSet rs = stmt.executeQuery();
+        
+        while(rs.next())
+        {
+            System.out.println(rs.getString(3));
+        }
         con.close();
     }
     
