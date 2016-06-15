@@ -84,7 +84,7 @@ public class ServerManagerTomas {
         try {
 
             if (dataReceived.size() == 2) {
-            //tomada\n
+                //tomada\n
                 //288\n
                 if (dataReceived.get(0).contains("tomada")) {
                     tomadaID = dataReceived.get(1);
@@ -95,9 +95,11 @@ public class ServerManagerTomas {
                     return 0;
                 }
             } else {
+                dataReceived.clear();
                 return 2;
             }
         } catch (Exception e) {
+            dataReceived.clear();
             return 0;
         }
     }
