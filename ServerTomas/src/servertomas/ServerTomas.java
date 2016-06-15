@@ -3,6 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+
 package servertomas;
 
 import java.io.*;
@@ -16,69 +18,81 @@ import java.util.Random;
  *
  * @author gustavo
  */
-public class ServerTomas  {
-    
-    
-    public static void main(String[] args) throws IOException {
+public class ServerTomas {
+
+    public static void main(String[] args) {
         
-        Random generator = new Random();
+        int PORT = 8000;
         
-        String dataSend;
+        TomasDataBase database = new TomasDataBase();
         
-        String tomadaId = "";
+        ServerManagerTomas serverTomas = new ServerManagerTomas();
         
-        ArrayList<String> dataReceived = new ArrayList<>();
-        
-        ServerSocket sSocket = new ServerSocket(8000);
         
         while(true){
+            //Connect to dataBase
+            //Create Server Listener
+            //Receive Msg
+            //Verify Content
+            //Get information from database
+            //Send answer
             
-            System.out.println("Waiting connection...");
+            System.out.println("Connecting to database");
+            if(database.connectToDataBase())
+                System.out.println("Connected to database");
+            else
+                System.out.println("Failure to connect to database");
             
-            Socket socket = sSocket.accept();
-          
-            BufferedReader in =
-               new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            
-            delay();
-            
-            System.out.println("Received from client:");
-            
-            do{
-                dataReceived.add(in.readLine());
-            }while (in.ready());
-            
-            dataReceived.stream().forEach((data) -> {
-                System.out.println(data);
-            });
-            
-            if(dataReceived.size() == 2){
-                if(dataReceived.get(0).contains("tomada"))
-                    tomadaId = dataReceived.get(1);
+            System.out.println("Waiting for connection on PORT: " + PORT);
+            try{
+                serverTomas.createSocketListener(PORT);
+            }catch(IOException ex){
+                System.out.println("Error to create socket...");
             }
             
-            System.out.println("Tomada ID: " + tomadaId);
+            while(serverTomas.isSocketConnected()){
+                
+                System.out.println("Waiting data from tomada");
+                if(serverTomas.receiveData()){
+                    System.out.println("Data Received");
+                    
+                    if(serverTomas.messageType() == 1){
+                        System.out.println("Message of tomada status type");
+                        
+                        
+                        int tomadaStatus = database.getTomadaStatus(serverTomas.getTomadaID());
+                        System.out.println("Tomada ID: " + serverTomas.getTomadaID());
+                        System.out.println("Tomada Status: " + tomadaStatus);
+                        switch(tomadaStatus){
+                            case 0:
+                                serverTomas.sendData("OFF\n");
+                                break;
+                            case 1:
+                                serverTomas.sendData("ON\n");
+                                break;
+                            case -1:
+                                //Do not answer in case of error
+                                serverTomas.sendData("\n");
+                                break;
+                        }
+                    }
+                    else{
+                        //TODO implementation of the other message types
+                        
+                        System.out.println("Other message received");
+                        
+                    }
+                }
             
+            }
             
-            if(generator.nextInt()%2 == 0)
-                dataSend = "ON\n";
-            else
-                dataSend = "OFF\n";
-            
-            out.writeBytes(dataSend);
-            
-            dataReceived.clear();
-
         }
-
     }
-   
-    
-    public static void delay(){
+
+    public static void delay(int milis) {
         try {
-            Thread.sleep(1);
+            Thread.sleep(milis);
+            
         } catch (InterruptedException ex) {
             Logger.getLogger(ServerTomas.class.getName()).log(Level.SEVERE, null, ex);
         }
