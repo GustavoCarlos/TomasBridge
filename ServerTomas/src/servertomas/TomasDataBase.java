@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,6 +96,51 @@ public class TomasDataBase {
             return -1;
         }
         
+    }
+    
+    public boolean setTomasConsumption(String id, String cons){
+        //
+        //INSERT INTO `tomadas_consumo`(`id`, `id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7],[value-8])
+        //
+        
+        Date date = new Date();
+        
+        try{
+            
+            String SQL = "INSERT INTO `tomadas_consumo`(`id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) "
+                    + "VALUES ("
+                    + id + ","
+                    + date.getDate() + ","
+                    + (date.getMonth() + 1) + ","
+                    + (date.getYear()-100) + ","
+                    + (date.getHours() - 3) + ","
+                    + date.getMinutes() + ","
+                    + cons + ")";
+            
+            System.out.println(SQL);
+            //dbStmt = dbCon.prepareStatement(SQL);
+            dbStmt.executeUpdate(SQL);
+            
+            return true;
+            
+            /*dbResult = dbStmt.executeQuery();
+            
+            
+            if (dbResult != null)
+                return true;
+            else
+                return false;*/
+
+        }
+        catch(SQLException ex){
+            System.out.println(ex.toString());
+            System.out.println("Exception select");
+            return false;
+        }
+        catch(NullPointerException npEx){
+            System.out.println("Exeption null pointer");
+            return false;
+        }
     }
     
     public boolean isConnected(){

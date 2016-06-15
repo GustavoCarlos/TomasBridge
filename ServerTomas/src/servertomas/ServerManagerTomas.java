@@ -95,6 +95,7 @@ public class ServerManagerTomas {
                     return 0;
                 }
             } else {
+                //TODO corrente
                 dataReceived.clear();
                 return 2;
             }

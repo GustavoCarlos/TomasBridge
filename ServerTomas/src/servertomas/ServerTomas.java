@@ -14,6 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Random;
 
+import java.util.Date;
+
+
 /**
  *
  * @author gustavo
@@ -28,6 +31,7 @@ public class ServerTomas {
         
         ServerManagerTomas serverTomas = new ServerManagerTomas();
         
+        Date date = new Date();
         
         while(true){
             //Connect to dataBase
@@ -60,6 +64,8 @@ public class ServerTomas {
                         System.out.println("Message of tomada status type");
                         
                         
+                        database.setTomasConsumption(serverTomas.getTomadaID().toString(), "3.456");
+                        
                         int tomadaStatus = database.getTomadaStatus(serverTomas.getTomadaID());
                         System.out.println("Tomada ID: " + serverTomas.getTomadaID());
                         System.out.println("Tomada Status: " + tomadaStatus);
@@ -78,6 +84,9 @@ public class ServerTomas {
                     }
                     else{
                         //TODO implementation of the other message types
+                        
+                        
+                        //id288cons3.234\n
                         
                         System.out.println("Other message received");
                         
