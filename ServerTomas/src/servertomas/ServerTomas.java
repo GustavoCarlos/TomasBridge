@@ -71,10 +71,12 @@ public class ServerTomas {
                         System.out.println("Tomada Status: " + tomadaStatus);
                         switch(tomadaStatus){
                             case 0:
-                                serverTomas.sendData("OFF\n");
+                                System.out.println("OFF sent");
+                                serverTomas.sendData(" OFF\n");
                                 break;
                             case 1:
-                                serverTomas.sendData("ON\n");
+                                System.out.println("ON sent");
+                                serverTomas.sendData(" ON\n");
                                 break;
                             case -1:
                                 //Just send a new line in case of error
@@ -95,6 +97,10 @@ public class ServerTomas {
                         System.out.println("Other message received");
                     }
                 }
+                
+                serverTomas.closeSocket();
+
+
             
             }
             

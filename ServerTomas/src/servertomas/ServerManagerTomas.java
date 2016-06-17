@@ -38,6 +38,17 @@ public class ServerManagerTomas {
         outputSocket = new DataOutputStream(socket.getOutputStream());
     }
     
+    public void closeSocket(){
+        try {
+            socket.close();
+            sSocket.close();
+            socket = null;
+        } catch (IOException ex) {
+            System.out.println("IOEcxception on close sopcket");
+        }
+
+    }
+    
     public boolean isSocketConnected(){
         try {
             return socket.isConnected();

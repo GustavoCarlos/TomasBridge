@@ -106,15 +106,25 @@ public class TomasDataBase implements Runnable{
         GregorianCalendar dateHour = new GregorianCalendar();
         
         try{
+            int day = dateHour.get(Calendar.DAY_OF_MONTH);
+            int month = dateHour.get(Calendar.MONTH) + 1;
+            int year = dateHour.get(Calendar.YEAR);
+            int hour = dateHour.get(Calendar.HOUR_OF_DAY);
+            int min = dateHour.get(Calendar.MINUTE);
+            
+            if(hour >= 3)
+                hour -= 3;
+            else
+                hour += 21;
             
             String SQL = "INSERT INTO `tomadas_consumo`(`id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) "
                     + "VALUES ("
                     + id + ","
-                    + dateHour.get(Calendar.DAY_OF_MONTH) + ","
-                    + (dateHour.get(Calendar.MONTH) + 1) + ","
-                    + dateHour.get(Calendar.YEAR) + ","
-                    + (dateHour.get(Calendar.HOUR_OF_DAY) - 3) + ","
-                    + dateHour.get(Calendar.MINUTE) + ","
+                    + day + ","
+                    + month + ","
+                    + year + ","
+                    + hour + ","
+                    + min + ","
                     + cons + ")";
             
             System.out.println(SQL);
@@ -220,6 +230,11 @@ public class TomasDataBase implements Runnable{
         currentTime[2] = dateHour.get(Calendar.YEAR);
         currentTime[3] = dateHour.get(Calendar.HOUR_OF_DAY);
         currentTime[4] = dateHour.get(Calendar.MINUTE);
+        
+        if(currentTime[3] >= 3)
+            currentTime[3] -= 3;
+        else
+            currentTime[3] += 21;
         
         System.out.println("************Current Time************");
         System.out.println("dia: " + currentTime[0] + 
