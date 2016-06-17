@@ -8,8 +8,6 @@ package servertomas;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -17,16 +15,17 @@ import java.util.logging.Logger;
  */
 public class ServerManagerTomas {
     
-    ServerSocket sSocket;
-    Socket socket;
+    private ServerSocket sSocket;
+    private Socket socket;
     
-    String tomadaID = "";
+    private String tomadaID = "";
+    private String consumption = "";
     
-    BufferedReader inputSocket;
-    DataOutputStream outputSocket;
+    private BufferedReader inputSocket;
+    private DataOutputStream outputSocket;
     
     
-    ArrayList<String> dataReceived = new ArrayList<>();
+    private final ArrayList<String> dataReceived = new ArrayList<>();
     
     public void createSocketListener(int port) throws IOException{
         
@@ -51,7 +50,9 @@ public class ServerManagerTomas {
 
         try {
             do {
+                
                 String ldataRec = inputSocket.readLine();
+                System.out.println(ldataRec);
                 if(ldataRec != null)
                     dataReceived.add(ldataRec);
                 else{
@@ -76,7 +77,7 @@ public class ServerManagerTomas {
         }
     }
     
-    public int messageType(){
+    public int messageType() {
         //Type 0 message Failure
         //Type 1 message Status
         //Type 2 current comsuption
@@ -94,10 +95,21 @@ public class ServerManagerTomas {
                     dataReceived.clear();
                     return 0;
                 }
+            } else if (dataReceived.size() == 1) {
+                String localStr = dataReceived.get(0);
+                if (localStr.contains("cons")) {
+
+                    tomadaID = localStr.split("cons")[0].substring(2);
+                    consumption = localStr.split("cons")[1];
+                    dataReceived.clear();
+                    return 2;
+                } else {
+                    dataReceived.clear();
+                    return 0;
+                }
             } else {
-                //TODO corrente
                 dataReceived.clear();
-                return 2;
+                return 0;
             }
         } catch (Exception e) {
             dataReceived.clear();
@@ -107,6 +119,10 @@ public class ServerManagerTomas {
     
     public String getTomadaID(){
         return tomadaID;
+    }
+    
+    public String getTomadaConsumption(){
+        return consumption;
     }
     
 }

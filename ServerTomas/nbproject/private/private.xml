@@ -5,6 +5,7 @@
         <group>
             <file>file:/home/gustavo/TomasBridge/ServerTomas/src/servertomas/ServerTomas.java</file>
             <file>file:/home/gustavo/TomasBridge/ServerTomas/src/servertomas/ServerManagerTomas.java</file>
+            <file>file:/home/gustavo/TomasBridge/ServerTomas/src/servertomas/ProgramableTime.java</file>
             <file>file:/home/gustavo/TomasBridge/ServerTomas/src/servertomas/ClientTest.java</file>
             <file>file:/home/gustavo/TomasBridge/ServerTomas/src/servertomas/TomasDataBase.java</file>
         </group>

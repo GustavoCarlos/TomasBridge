@@ -10,20 +10,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  *
  * @author gustavo
  */
-public class TomasDataBase {
+public class TomasDataBase implements Runnable{
     
     private final String dbUser = "root";
     private final String dbPwd = "tomasunifesp.3309";
     private final String DB = "jdbc:mysql://localhost/tomas";
-    private final String DBtestes = "jdbc:mysql://tomas.no-ip.org/tomas";
+    //private final String DBtestes = "jdbc:mysql://tomas.no-ip.org/tomas";
     
     //Used to connect to dataBase
     private Connection dbCon;
@@ -98,39 +98,30 @@ public class TomasDataBase {
         
     }
     
-    public boolean setTomasConsumption(String id, String cons){
+    public boolean saveTomasConsumption(String id, String cons){
         //
         //INSERT INTO `tomadas_consumo`(`id`, `id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7],[value-8])
         //
         
-        Date date = new Date();
+        GregorianCalendar dateHour = new GregorianCalendar();
         
         try{
             
             String SQL = "INSERT INTO `tomadas_consumo`(`id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) "
                     + "VALUES ("
                     + id + ","
-                    + date.getDate() + ","
-                    + (date.getMonth() + 1) + ","
-                    + (date.getYear()-100) + ","
-                    + (date.getHours() - 3) + ","
-                    + date.getMinutes() + ","
+                    + dateHour.get(Calendar.DAY_OF_MONTH) + ","
+                    + (dateHour.get(Calendar.MONTH) + 1) + ","
+                    + dateHour.get(Calendar.YEAR) + ","
+                    + (dateHour.get(Calendar.HOUR_OF_DAY) - 3) + ","
+                    + dateHour.get(Calendar.MINUTE) + ","
                     + cons + ")";
             
             System.out.println(SQL);
-            //dbStmt = dbCon.prepareStatement(SQL);
+            dbStmt = dbCon.prepareStatement(SQL);
             dbStmt.executeUpdate(SQL);
             
             return true;
-            
-            /*dbResult = dbStmt.executeQuery();
-            
-            
-            if (dbResult != null)
-                return true;
-            else
-                return false;*/
-
         }
         catch(SQLException ex){
             System.out.println(ex.toString());
@@ -153,4 +144,116 @@ public class TomasDataBase {
         }
     }
     
+    public void checkSchedulesTomas(){
+        
+        
+        try{
+            String SQL = "select * from programacao_horario";
+            dbStmt = dbCon.prepareStatement(SQL);
+            dbResult = dbStmt.executeQuery();
+            
+            while(dbResult.next()){
+      
+                Integer[] progTime = new Integer[5];
+                progTime[0] = dbResult.getInt("dia");
+                progTime[1] = dbResult.getInt("mes");
+                progTime[2] = dbResult.getInt("ano");
+                progTime[3] = dbResult.getInt("hora");
+                progTime[4] = dbResult.getInt("minuto");
+                
+                System.out.println("dia: " + progTime[0] + 
+                        " mes: " + progTime[1]+
+                        " ano: " + progTime[2]+
+                        " hora: " + progTime[3] +
+                        " minuto: "+progTime[4]);
+                
+                if(compareProgCurrent(progTime)){
+                
+                    int id_tom = dbResult.getInt("id_tomada");
+                    int status = dbResult.getInt("status");
+                    
+                    updateTomadaStatus(status, id_tom);
+                    
+                }
+
+            }
+            
+            
+            
+        }catch(SQLException ex){
+            System.out.println("SQL Exception...");
+        }
+        catch(NullPointerException nEx){
+            System.out.println("Null pointer Exception... ");
+        }
+        
+    }
+    
+    public void updateTomadaStatus(int status, int ID){
+        
+        String SQL = "update tomadas set status = "+ status + " where id = " + ID; 
+        
+        System.out.println("SQL: " + SQL);
+                    
+        
+        try {
+            
+            dbStmt = dbCon.prepareStatement(SQL);
+            dbStmt.executeUpdate(SQL);
+
+            System.out.println("Right...");
+        } catch (SQLException ex) {
+            System.out.println("SQL exception on UPDATE");
+        } catch (NullPointerException nEx) {
+            System.out.println("Null pointer exception on UPDATE");
+        }
+                
+    }
+    
+    public boolean compareProgCurrent(Integer[] progDate){
+        
+        GregorianCalendar dateHour = new GregorianCalendar();
+        
+        Integer[] currentTime = new Integer[5];
+        currentTime[0] = dateHour.get(Calendar.DAY_OF_MONTH);
+        currentTime[1] = dateHour.get(Calendar.MONTH) + 1;
+        currentTime[2] = dateHour.get(Calendar.YEAR);
+        currentTime[3] = dateHour.get(Calendar.HOUR_OF_DAY);
+        currentTime[4] = dateHour.get(Calendar.MINUTE);
+        
+        System.out.println("************Current Time************");
+        System.out.println("dia: " + currentTime[0] + 
+                        " mes: " + currentTime[1]+
+                        " ano: " + currentTime[2]+
+                        " hora: " + currentTime[3] +
+                        " minuto: "+currentTime[4]);
+        
+        System.out.println("**************************************");
+        
+        return Arrays.equals(currentTime, progDate);
+    }
+    
+    //Method to check the programable plugs
+    @Override
+    public void run() {
+        
+        int minuteBefore = 0;
+        int i = 0;
+        //TODO
+        while(true){
+            
+            GregorianCalendar dateHour = new GregorianCalendar();
+            
+            if(i == 0){
+                minuteBefore = dateHour.get(Calendar.MINUTE);
+                i = 1;
+            }
+            
+            if(minuteBefore != dateHour.get(Calendar.MINUTE)){
+                checkSchedulesTomas();
+                minuteBefore = dateHour.get(Calendar.MINUTE);
+            }
+            
+        }
+    }
 }

@@ -8,14 +8,8 @@
 package servertomas;
 
 import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Random;
-
-import java.util.Date;
-
 
 /**
  *
@@ -24,14 +18,22 @@ import java.util.Date;
 public class ServerTomas {
 
     public static void main(String[] args) {
-        
+             
         int PORT = 8000;
         
         TomasDataBase database = new TomasDataBase();
         
         ServerManagerTomas serverTomas = new ServerManagerTomas();
         
-        Date date = new Date();
+        if(database.connectToDataBase())
+            System.out.println("Connected to database");
+        else
+            System.out.println("Failure to connect to database");
+        
+        Thread checkTomadas = new Thread(database);
+        
+        checkTomadas.start();
+        
         
         while(true){
             //Connect to dataBase
@@ -60,12 +62,10 @@ public class ServerTomas {
                 if(serverTomas.receiveData()){
                     System.out.println("Data Received");
                     
-                    if(serverTomas.messageType() == 1){
+                    int dataType = serverTomas.messageType();
+                    if(dataType == 1){
                         System.out.println("Message of tomada status type");
-                        
-                        
-                        database.setTomasConsumption(serverTomas.getTomadaID().toString(), "3.456");
-                        
+                          
                         int tomadaStatus = database.getTomadaStatus(serverTomas.getTomadaID());
                         System.out.println("Tomada ID: " + serverTomas.getTomadaID());
                         System.out.println("Tomada Status: " + tomadaStatus);
@@ -77,19 +77,22 @@ public class ServerTomas {
                                 serverTomas.sendData("ON\n");
                                 break;
                             case -1:
-                                //Do not answer in case of error
+                                //Just send a new line in case of error
                                 serverTomas.sendData("\n");
                                 break;
                         }
                     }
-                    else{
-                        //TODO implementation of the other message types
-                        
-                        
+                    else if(dataType == 2){
                         //id288cons3.234\n
-                        
+                        System.out.println("Consumption message received");
+                        if(database.saveTomasConsumption(serverTomas.getTomadaID(), 
+                                serverTomas.getTomadaConsumption()))
+                            System.out.println("Data consumption saved with success!!!");
+                        else
+                            System.out.println("Data consumption NOT saved!!!");
+                    }
+                    else{
                         System.out.println("Other message received");
-                        
                     }
                 }
             
