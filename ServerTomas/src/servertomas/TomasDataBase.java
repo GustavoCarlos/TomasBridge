@@ -103,6 +103,8 @@ public class TomasDataBase implements Runnable{
         //INSERT INTO `tomadas_consumo`(`id`, `id_tomada`, `dia`, `mes`, `ano`, `hora`, `minuto`, `consumo`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7],[value-8])
         //
         
+        float currentCons = calcConsumption(Integer.parseInt(cons));
+        
         GregorianCalendar dateHour = new GregorianCalendar();
         
         try{
@@ -125,7 +127,7 @@ public class TomasDataBase implements Runnable{
                     + year + ","
                     + hour + ","
                     + min + ","
-                    + cons + ")";
+                    + currentCons + ")";
             
             System.out.println(SQL);
             dbStmt = dbCon.prepareStatement(SQL);
@@ -231,10 +233,13 @@ public class TomasDataBase implements Runnable{
         currentTime[3] = dateHour.get(Calendar.HOUR_OF_DAY);
         currentTime[4] = dateHour.get(Calendar.MINUTE);
         
+        
         if(currentTime[3] >= 3)
             currentTime[3] -= 3;
-        else
+        else{
             currentTime[3] += 21;
+            currentTime[0] -= 1;
+        }
         
         System.out.println("************Current Time************");
         System.out.println("dia: " + currentTime[0] + 
@@ -246,6 +251,22 @@ public class TomasDataBase implements Runnable{
         System.out.println("**************************************");
         
         return Arrays.equals(currentTime, progDate);
+    }
+    
+    
+    public float calcConsumption(int value){
+        
+        //voltage = ((maxValue - minValue)*5)/1024
+        //vRMS = (voltage/2) * math.sqrt(2)
+        //i = (vRMS*1000)/mVperAmp
+        //mVperAmp = 66
+        
+        float voltage = (float)(value*5)/1024;
+        float vRMS = (float) ((voltage/2) * Math.sqrt(2));
+        
+        float i = (vRMS*1000)/66;
+        
+        return i;
     }
     
     //Method to check the programable plugs

@@ -25,6 +25,11 @@ public class ServerTomas {
         
         ServerManagerTomas serverTomas = new ServerManagerTomas();
         
+        
+        float test = database.calcConsumption(8);
+        
+        System.out.println(test);
+        
         if(database.connectToDataBase())
             System.out.println("Connected to database");
         else

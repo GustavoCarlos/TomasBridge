@@ -33,6 +33,8 @@ public class ServerManagerTomas {
         
         socket = sSocket.accept();
         
+        socket.setSoTimeout(2000);
+        
         inputSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         
         outputSocket = new DataOutputStream(socket.getOutputStream());
@@ -61,7 +63,7 @@ public class ServerManagerTomas {
 
         try {
             do {
-                
+                System.out.println("inside function");
                 String ldataRec = inputSocket.readLine();
                 System.out.println(ldataRec);
                 if(ldataRec != null)
@@ -69,10 +71,13 @@ public class ServerManagerTomas {
                 else{
                     sSocket.close();
                     socket = null;
+                    System.out.println("data received = null");
                     return false;
                 }
             } while (inputSocket.ready());
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
+            
+            System.out.println(ex.toString());
             return false;
         }
 

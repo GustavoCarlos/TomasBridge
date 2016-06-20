@@ -24,6 +24,8 @@ public class ClientTest {
 
             try {
                 Socket clientSocket = new Socket("tomas.no-ip.org", 8000);//"localhost", 8000);//
+                
+                clientSocket.setSoTimeout(2000);
 
                 DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -32,8 +34,13 @@ public class ClientTest {
                 out.writeBytes("305\n");
 
                 System.out.println("Received from Server: " + in.readLine());
+                ServerTomas.delay(1000);
                 
-                ServerTomas.delay(2000);
+                
+                /*out.writeBytes("id300cons2.321\n");
+                ServerTomas.delay(1000);
+                System.out.println("Sent");
+                ServerTomas.delay(2000);*/
 
                /* if (i >= 10) {
                     out.writeBytes("id300cons5.54\n");
